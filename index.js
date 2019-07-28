@@ -43,6 +43,9 @@ app.post('/webhook', (req, res) => {
                 "text": `You sent the message: "${message}". Now send me an image!`
             };
 
+            // TODO make this all be promisified with async/await,
+            // right now it just sends the call API and doesn't wait to see
+            // if it was sent correctly
             callSendAPI(sender_id, response);
         });
 
@@ -87,7 +90,7 @@ const callSendAPI = (sender_id, message) => {
     // Construct the message body
     let request_body = {
         "recipient": {
-            "id": sender_sender_idpsid
+            "id": sender_id
         },
         message
     };
