@@ -4,7 +4,10 @@
 const
     express = require('express'),
     bodyParser = require('body-parser'),
-    app = express().use(bodyParser.json()); // creates express http server
+    app = express().use(bodyParser.json()), // creates express http server
+    request = require('request');
+
+const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 
 // Sets server port and logs message on success
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
@@ -23,7 +26,24 @@ app.post('/webhook', (req, res) => {
             // Gets the message. entry.messaging is an array, but
             // will only ever contain one message, so we get index 0
             let webhook_event = entry.messaging[0];
+
+            // log event for debugging
             console.log(webhook_event);
+
+            const sender_id = webhook_event.sender.id;
+            const message = webhook_event.message;
+
+            console.log(`sender_id: ${sender_id}`);
+            console.log(`message: ${message}`);
+
+
+            // if it was a text message, reply back with workload
+            // Create the payload for a basic text message
+            const response = {
+                "text": `You sent the message: "${message}". Now send me an image!`
+            };
+
+            callSendAPI(sender_id, response);
         });
 
         // Returns a '200 OK' response to all requests
@@ -62,3 +82,27 @@ app.get('/webhook', (req, res) => {
         }
     }
 });
+
+const callSendAPI = (sender_id, message) => {
+    // Construct the message body
+    let request_body = {
+        "recipient": {
+            "id": sender_sender_idpsid
+        },
+        message
+    };
+
+    // Send the HTTP request to the Messenger Platform
+    request({
+        "uri": "https://graph.facebook.com/v2.6/me/messages",
+        "qs": { "access_token": PAGE_ACCESS_TOKEN },
+        "method": "POST",
+        "json": request_body
+    }, (err, res, body) => {
+        if (!err) {
+            console.log('message sent!')
+        } else {
+            console.error("Unable to send message:" + err);
+        }
+    });
+};
