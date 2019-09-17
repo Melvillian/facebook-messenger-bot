@@ -1,4 +1,4 @@
-'use strict';
+ 'use strict';
 
 // Imports dependencies and set up http server
 const
@@ -40,7 +40,7 @@ app.post('/webhook', (req, res) => {
             // if it was a text message, reply back with workload
             // Create the payload for a basic text message
             const response = {
-                "text": `You sent the message: "${message}". Now send me an image!`
+                "text": `You sent the message: "${JSON.stringify(message)}". Now send me an image!`
             };
 
             // TODO make this all be promisified with async/await,
