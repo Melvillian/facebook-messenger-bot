@@ -91,7 +91,7 @@ const send_2_chat = (sender_id, message) => {
     // if it was a text message, reply back with workload
     // Create the payload for a basic text message
     const text = {
-        "text": `You sent the message: "${message}". Now send me an image!`
+        "text": `You sent the message: "${JSON.stringify(message)}". Now send me an image!`
     };
     // Construct the message body
     let request_body = {
