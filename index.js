@@ -8,6 +8,8 @@ const
     request = require('request');
 
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
+const SENDER_ID = process.env.SENDER_ID;
+const MESSAGE = 'It Works! 😄😊😉😍😘😚😜😝😳😁😣😢😂😭😪😥😰😩';
 
 // Sets server port and logs message on success
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
@@ -36,17 +38,10 @@ app.post('/webhook', (req, res) => {
             console.log(`sender_id: ${sender_id}`);
             console.log(`message: ${message}`);
 
-
-            // if it was a text message, reply back with workload
-            // Create the payload for a basic text message
-            const response = {
-                "text": `You sent the message: "${JSON.stringify(message)}". Now send me an image!`
-            };
-
             // TODO make this all be promisified with async/await,
             // right now it just sends the call API and doesn't wait to see
             // if it was sent correctly
-            callSendAPI(sender_id, response);
+            send_2_chat(sender_id, message);
         });
 
         // Returns a '200 OK' response to all requests
@@ -86,13 +81,24 @@ app.get('/webhook', (req, res) => {
     }
 });
 
-const callSendAPI = (sender_id, message) => {
+// setInterval(() => {
+//     send_2_chat(SENDER_ID, MESSAGE);
+//     console.log(`Sending ${MESSAGE}...`);
+// }, 1000 * 30);
+
+const send_2_chat = (sender_id, message) => {
+
+    // if it was a text message, reply back with workload
+    // Create the payload for a basic text message
+    const text = {
+        "text": `You sent the message: "${message}". Now send me an image!`
+    };
     // Construct the message body
     let request_body = {
         "recipient": {
             "id": sender_id
         },
-        message
+        message: text
     };
 
     // Send the HTTP request to the Messenger Platform
