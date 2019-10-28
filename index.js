@@ -5,9 +5,9 @@ const
   express = require('express'),
   bodyParser = require('body-parser'),
   app = express().use(bodyParser.json()), // creates express http server
-  request = require('request');
+  request = require('request'),
+  util = require('./util');
 
-const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 const MESSAGE = 'It Works! 😄😊😉😍😘😚😜😝😳😁😣😢😂😭😪😥😰😩';
 
 // Sets server port and logs message on success
@@ -40,7 +40,7 @@ app.post('/webhook', (req, res) => {
       // TODO make this all be promisified with async/await,
       // right now it just sends the call API and doesn't wait to see
       // if it was sent correctly
-      send_2_chat(sender_id, message);
+      util.send_2_chat(message);
     });
 
     // Returns a '200 OK' response to all requests
@@ -79,33 +79,3 @@ app.get('/webhook', (req, res) => {
     }
   }
 });
-
-const send_2_chat = (sender_id, message) => {
-
-  // if it was a text message, reply back with workload
-  // Create the payload for a basic text message
-  const text = {
-    "text": `You sent the message: "${JSON.stringify(message)}". Now send me an image!`
-  };
-  // Construct the message body
-  let request_body = {
-    "recipient": {
-      "id": sender_id
-    },
-    message: text
-  };
-
-  // Send the HTTP request to the Messenger Platform
-  request({
-    "uri": "https://graph.facebook.com/v2.6/me/messages",
-    "qs": { "access_token": PAGE_ACCESS_TOKEN },
-    "method": "POST",
-    "json": request_body
-  }, (err, res, body) => {
-    if (!err) {
-      console.log('message sent!')
-    } else {
-      console.error("Unable to send message:" + err);
-    }
-  });
-};

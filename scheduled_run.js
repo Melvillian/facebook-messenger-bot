@@ -1,4 +1,5 @@
 const fs = require('fs');
+const util = require('./util');
 
 /// selects a random string line from the quotes.txt file
 const pickRandomQuote = () => {
@@ -13,3 +14,5 @@ const pickRandomQuote = () => {
 }
 
 /// sends a random quote to the facebook bot message
+const quote = pickRandomQuote();
+util.send_2_chat(quote);
