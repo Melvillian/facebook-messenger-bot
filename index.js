@@ -1,14 +1,13 @@
- 'use strict';
+'use strict';
 
 // Imports dependencies and set up http server
 const
-    express = require('express'),
-    bodyParser = require('body-parser'),
-    app = express().use(bodyParser.json()), // creates express http server
-    request = require('request');
+  express = require('express'),
+  bodyParser = require('body-parser'),
+  app = express().use(bodyParser.json()), // creates express http server
+  request = require('request');
 
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
-const SENDER_ID = process.env.SENDER_ID;
 const MESSAGE = 'It Works! 😄😊😉😍😘😚😜😝😳😁😣😢😂😭😪😥😰😩';
 
 // Sets server port and logs message on success
@@ -17,101 +16,96 @@ app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
 // Creates the endpoint for our webhook
 app.post('/webhook', (req, res) => {
 
-    let body = req.body;
+  let body = req.body;
 
-    // Checks this is an event from a page subscription
-    if (body.object === 'page') {
+  // Checks this is an event from a page subscription
+  if (body.object === 'page') {
 
-        // Iterates over each entry - there may be multiple if batched
-        body.entry.forEach(function(entry) {
+    // Iterates over each entry - there may be multiple if batched
+    body.entry.forEach(function(entry) {
 
-            // Gets the message. entry.messaging is an array, but
-            // will only ever contain one message, so we get index 0
-            let webhook_event = entry.messaging[0];
+      // Gets the message. entry.messaging is an array, but
+      // will only ever contain one message, so we get index 0
+      let webhook_event = entry.messaging[0];
 
-            // log event for debugging
-            console.log(webhook_event);
+      // log event for debugging
+      console.log(webhook_event);
 
-            const sender_id = webhook_event.sender.id;
-            const message = webhook_event.message;
+      const sender_id = webhook_event.sender.id;
+      const message = webhook_event.message;
 
-            console.log(`sender_id: ${sender_id}`);
-            console.log(`message: ${message}`);
+      console.log(`sender_id: ${sender_id}`);
+      console.log(`message: ${message}`);
 
-            // TODO make this all be promisified with async/await,
-            // right now it just sends the call API and doesn't wait to see
-            // if it was sent correctly
-            send_2_chat(sender_id, message);
-        });
+      // TODO make this all be promisified with async/await,
+      // right now it just sends the call API and doesn't wait to see
+      // if it was sent correctly
+      send_2_chat(sender_id, message);
+    });
 
-        // Returns a '200 OK' response to all requests
-        res.status(200).send('EVENT_RECEIVED');
-    } else {
-        // Returns a '404 Not Found' if event is not from a page subscription
-        res.sendStatus(404);
-    }
+    // Returns a '200 OK' response to all requests
+    res.status(200).send('EVENT_RECEIVED');
+  } else {
+    // Returns a '404 Not Found' if event is not from a page subscription
+    res.sendStatus(404);
+  }
 
 });
 
 // Adds support for GET requests to our webhook
 app.get('/webhook', (req, res) => {
 
-    // Your verify token. Should be a random string.
-    let VERIFY_TOKEN = process.env.VERIFY_TOKEN;
+  // Your verify token. Should be a random string.
+  let VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 
-    // Parse the query params
-    let mode = req.query['hub.mode'];
-    let token = req.query['hub.verify_token'];
-    let challenge = req.query['hub.challenge'];
+  // Parse the query params
+  let mode = req.query['hub.mode'];
+  let token = req.query['hub.verify_token'];
+  let challenge = req.query['hub.challenge'];
 
-    // Checks if a token and mode is in the query string of the request
-    if (mode && token) {
+  // Checks if a token and mode is in the query string of the request
+  if (mode && token) {
 
-        // Checks the mode and token sent is correct
-        if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+    // Checks the mode and token sent is correct
+    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
 
-            // Responds with the challenge token from the request
-            console.log('WEBHOOK_VERIFIED');
-            res.status(200).send(challenge);
+      // Responds with the challenge token from the request
+      console.log('WEBHOOK_VERIFIED');
+      res.status(200).send(challenge);
 
-        } else {
-            // Responds with '403 Forbidden' if verify tokens do not match
-            res.sendStatus(403);
-        }
+    } else {
+      // Responds with '403 Forbidden' if verify tokens do not match
+      res.sendStatus(403);
     }
+  }
 });
-
-// setInterval(() => {
-//     send_2_chat(SENDER_ID, MESSAGE);
-//     console.log(`Sending ${MESSAGE}...`);
-// }, 1000 * 30);
 
 const send_2_chat = (sender_id, message) => {
 
-    // if it was a text message, reply back with workload
-    // Create the payload for a basic text message
-    const text = {
-        "text": `You sent the message: "${JSON.stringify(message)}". Now send me an image!`
-    };
-    // Construct the message body
-    let request_body = {
-        "recipient": {
-            "id": sender_id
-        },
-        message: text
-    };
+  // if it was a text message, reply back with workload
+  // Create the payload for a basic text message
+  const text = {
+    "text": `You sent the message: "${JSON.stringify(message)}". Now send me an image!`
+  };
+  // Construct the message body
+  let request_body = {
+    "recipient": {
+      "id": sender_id
+    },
+    message: text
+  };
 
-    // Send the HTTP request to the Messenger Platform
-    request({
-        "uri": "https://graph.facebook.com/v2.6/me/messages",
-        "qs": { "access_token": PAGE_ACCESS_TOKEN },
-        "method": "POST",
-        "json": request_body
-    }, (err, res, body) => {
-        if (!err) {
-            console.log('message sent!')
-        } else {
-            console.error("Unable to send message:" + err);
-        }
-    });
+  // Send the HTTP request to the Messenger Platform
+  request({
+    "uri": "https://graph.facebook.com/v2.6/me/messages",
+    "qs": { "access_token": PAGE_ACCESS_TOKEN },
+    "method": "POST",
+    "json": request_body
+  }, (err, res, body) => {
+    if (!err) {
+      console.log('message sent!')
+    } else {
+      console.error("Unable to send message:" + err);
+    }
+  });
 };
