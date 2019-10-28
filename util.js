@@ -34,6 +34,20 @@ const send_2_chat = (message) => {
   });
 };
 
+const fetch_github_quotes = (callback) => {
+  request({
+    "uri": "https://raw.githubusercontent.com/Melvillian/quotes/master/cowsay_quotes.txt",
+    "method": "GET"
+  }, (err, res, body) => {
+    if (!err) {
+    } else {
+      console.error("Unable to send message:" + err);
+    }
+    callback(body);
+  });
+}
+
 module.exports = {
   send_2_chat: send_2_chat,
-}
+  fetch_github_quotes: fetch_github_quotes,
+};

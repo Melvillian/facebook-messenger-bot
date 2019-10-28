@@ -2,17 +2,18 @@ const fs = require('fs');
 const util = require('./util');
 
 /// selects a random string line from the quotes.txt file
-const pickRandomQuote = () => {
-  const rawQuotes = fs.readFileSync('./quotes.txt', 'utf8');
+const pickRandomQuote = (callback) => {
+  util.fetch_github_quotes((rawQuotes) => {
+    const quotes = rawQuotes.split('\n');
+    const numQuotes = quotes.length;
 
-  const quotes = rawQuotes.split('\n');
-  const numQuotes = quotes.length;
+    const randomQuote = quotes[Math.floor(Math.random() * numQuotes)];
 
-  const randomQuote = quotes[Math.floor(Math.random() * numQuotes)];
-
-  return randomQuote;
-}
+    callback(randomQuote);
+  });
+};
 
 /// sends a random quote to the facebook bot message
-const quote = pickRandomQuote();
-util.send_2_chat(quote);
+const quote = pickRandomQuote((randomQuote) => {
+  util.send_2_chat(randomQuote);
+});
