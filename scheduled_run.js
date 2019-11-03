@@ -15,5 +15,6 @@ const pickRandomQuote = (callback) => {
 
 /// sends a random quote to the facebook bot message
 const quote = pickRandomQuote((randomQuote) => {
+	console.log(`random quote is: ${randomQuote}`);
   util.send_2_chat(randomQuote);
 });

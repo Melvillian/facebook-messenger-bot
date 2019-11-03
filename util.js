@@ -26,9 +26,11 @@ const send_2_chat = (message) => {
     "method": "POST",
     "json": request_body
   }, (err, res, body) => {
-    if (!err) {
-      console.log('message sent!')
-    } else {
+    if (!err && (body && !body.error)) {
+      console.log("message SUCCESS!");
+    } else if (body && body.error) {
+			console.log(`message FAILED with body: ${JSON.stringify(body)}`);
+		} else {
       console.error("Unable to send message:" + err);
     }
   });
