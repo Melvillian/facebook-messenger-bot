@@ -8,8 +8,6 @@ const
   request = require('request'),
   util = require('./util');
 
-const MESSAGE = 'It Works! 😄😊😉😍😘😚😜😝😳😁😣😢😂😭😪😥😰😩';
-
 // Sets server port and logs message on success
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
 
@@ -39,8 +37,12 @@ app.post('/webhook', (req, res) => {
 
       // TODO make this all be promisified with async/await,
       // right now it just sends the call API and doesn't wait to see
-      // if it was sent correctly
-      util.send_2_chat(message);
+      // if it was sent correctly.
+
+			// comment this out so that we don't end up sending 2 messages per day,
+			// which my hasty reading of the facebook documentation makes me think we
+			// can only send 1 message response per day
+      //util.send_2_chat(message);
     });
 
     // Returns a '200 OK' response to all requests
